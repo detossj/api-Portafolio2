@@ -41,17 +41,17 @@ class PortfolioController extends Controller
             'avatar' => 'https://avatars.githubusercontent.com/detossj',
             'cards' => [
                 [
-                    'icon' => 'user', 
+                    'icon' => 'User', 
                     'title' => 'Perfil',
                     'text' => 'Desarrollador en formación'
                 ],
                 [
-                    'icon' => 'graduation-cap',
+                    'icon' => 'GraduationCap', 
                     'title' => 'Formación',
                     'text' => '9° Semestre Ing. Civil Informática (UCSC)'
                 ],
                 [
-                    'icon' => 'code',
+                    'icon' => 'Code', 
                     'title' => 'Tecnologías',
                     'text' => 'Laravel, React y Kotlin (Android)'
                 ]
