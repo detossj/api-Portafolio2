@@ -13,4 +13,5 @@ Route::prefix('portfolio')->group(function () {
     Route::get('/projects', [PortfolioController::class, 'getProjects']);
     Route::get('/contact', [PortfolioController::class, 'getContact']);
     Route::get('/footer', [PortfolioController::class, 'getFooter']);
+    Route::get('/theme', [PortfolioController::class, 'getTheme']);
 });
