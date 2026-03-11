@@ -244,4 +244,22 @@ class PortfolioController extends Controller
             'shortBio' => 'Desarrollador Full Stack construyendo experiencias web y móviles.'
         ]);
     }
+
+    // Endpoint para el Tema y Paleta de Colores
+    public function getTheme()
+    {
+        return response()->json([
+            'colors' => [
+                'primary' => '#00ff88',       // Verde neón (Acentos principales)
+                'secondary' => '#00d4ff',     // Azul (Gradientes y acentos secundarios)
+                'background' => '#0a0a0b',    // Fondo principal de la app
+                'surface' => '#1a1a1b',       // Fondo de tarjetas (Cards) y elementos
+                'surfaceAlt' => '#0f0f10',    // Fondo alternativo (usado en About, Skills)
+                'border' => '#27272a',        // Bordes
+                'textPrimary' => '#e4e4e7',   // Texto principal (Blanco/Gris claro)
+                'textSecondary' => '#a1a1aa', // Texto secundario (Gris medio)
+                'textMuted' => '#71717a'      // Texto atenuado (Gris oscuro)
+            ]
+        ]);
+    }
 }
