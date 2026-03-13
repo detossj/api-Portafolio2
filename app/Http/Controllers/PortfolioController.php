@@ -1,8 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
+use App\Models\GithubRepo;
+use App\Models\Project;
+use App\Models\Experience;
+use App\Models\Education;
+use App\Models\Skill;
 
 class PortfolioController extends Controller
 {
@@ -59,166 +63,98 @@ class PortfolioController extends Controller
         ]);
     }
 
-    // Endpoint para la sección Habilidades
-    public function getSkills()
+    // Endpoint para la sección Experiencia
+    public function getExperience()
     {
-        return response()->json([
-            'categories' => [
-                'Frontend' => [
-                    ['name' => 'React', 'icon' => 'FileCode2'], 
-                    ['name' => 'Tailwind CSS', 'icon' => 'Palette'],
-                    ['name' => 'HTML/CSS', 'icon' => 'LayoutTemplate']
-                ],
-                'Backend' => [
-                    ['name' => 'Laravel', 'icon' => 'Server'],
-                    ['name' => 'Express.js', 'icon' => 'TerminalSquare'],
-                    ['name' => 'MySQL', 'icon' => 'Database']
-                ],
-                'Mobile' => [
-                    ['name' => 'Kotlin (Android)', 'icon' => 'Smartphone'],
-                    ['name' => 'Android Studio', 'icon' => 'Smartphone']
-                ],
-                'Herramientas' => [
-                    ['name' => 'Git', 'icon' => 'Code'],
-                    ['name' => 'Postman', 'icon' => 'Send']
-                ]
-            ],
-            'soft_skills' => [
-                'Aprendizaje Autodidacta',
-                'Trabajo en equipo',
-                'Adaptabilidad',
-                'Pensamiento Analítico',
-                'Resolución de problemas'
-            ]
-        ]);
+        $experiences = Experience::orderBy('id', 'desc')->get();
+
+        return response()->json($experiences->map(function ($e) {
+            return [
+                'id' => $e->id,
+                'title' => $e->title,
+                'company' => $e->company,
+                'startDate' => $e->start_date,
+                'endDate' => $e->end_date,
+                'description' => $e->description,
+                'technologies' => $e->technologies
+            ];
+        }));
     }
 
     // Endpoint para la sección Educación
     public function getEducation()
     {
-        return response()->json([
-            [
-                'id' => 1,
-                'degree' => 'Ingeniería Civil Informática',
-                'institution' => 'Universidad Católica de la Santísima Concepción (UCSC)',
-                'status' => 'En curso',
-                'startDate' => '2022',
-                'endDate' => 'Presente',
-                'description' => 'Formación integral en desarrollo de software, bases de datos, algoritmos y estructuras de datos, ingeniería de software y desarrollo multiplataforma.'
-            ]
-        ]);
+        $educations = Education::orderBy('id', 'desc')->get();
+
+        return response()->json($educations->map(function ($ed) {
+            return [
+                'id' => $ed->id,
+                'degree' => $ed->degree,
+                'institution' => $ed->institution,
+                'status' => $ed->status,
+                'startDate' => $ed->start_date,
+                'endDate' => $ed->end_date,
+                'description' => $ed->description
+            ];
+        }));
     }
 
-    // Endpoint para la sección Experiencia
-    public function getExperience()
+    // Endpoint para la sección Habilidades
+    public function getSkills()
     {
+        $allSkills = Skill::all();
+        
+        $categories = [];
+        $softSkills = [];
+
+        foreach ($allSkills as $skill) {
+            if ($skill->category === 'Soft Skills') {
+                $softSkills[] = $skill->name;
+            } else {
+                $categories[$skill->category][] = [
+                    'name' => $skill->name,
+                    'icon' => $skill->icon
+                ];
+            }
+        }
+
         return response()->json([
-            [
-                'id' => 1,
-                'title' => 'Ingeniero Civil Informático en Formación',
-                'company' => 'Proyectos Académicos',
-                'startDate' => '2022',
-                'endDate' => 'Presente',
-                'description' => 'Desarrollo de consola y móviles como parte de la formación universitaria. Implementación de soluciones utilizando  C, C#, C++, PostgreSQL, Laravel y Kotlin.',
-                'technologies' => ['C', 'C#', 'C++', 'PostreSQL', 'Laravel', 'Kotlin']
-            ],
-            [
-                'id' => 2,
-                'title' => 'Desarrollador Full Stack & Móvil Autodidacta',
-                'company' => 'Desarrollo Independiente',
-                'startDate' => '2024',
-                'endDate' => 'Presente',
-                'description' => 'Diseño y desarrollo de aplicaciones web y móviles. Construcción de plataformas de gestión (como sistemas para el sector gastronómico) y herramientas de seguimiento de datos, implementando una arquitectura basada en el patrón MVC. Creación de APIs robustas con Laravel, interfaces de usuario dinámicas con React y desarrollo de aplicaciones nativas para Android utilizando Kotlin.',
-                'technologies' => ['Laravel', 'React', 'Kotlin', 'API REST', 'MVC', 'Bootstrap']
-            ],
-            [
-                'id' => 4,
-                'title' => 'Practicante en Desarrollo TI',
-                'company' => 'Casino Marina del Sol - Talcahuano',
-                'startDate' => 'Enero 2026',
-                'endDate' => 'Febrero 2026', 
-                'description' => 'Desarrollo de soluciones web enfocadas en la optimización de procesos internos. Creación de interfaces de usuario interactivas, modernas y responsivas utilizando React y Tailwind CSS.',
-                'technologies' => ['React', 'Express.js', 'Tailwind CSS', 'API REST']
-            ]
+            'categories' => $categories,
+            'soft_skills' => $softSkills
         ]);
     }
 
     // Endpoint para la sección Proyectos
     public function getProjects()
     {
+        $projects = Project::all();
+        
+        $githubRepos = GithubRepo::all();
+
         return response()->json([
-            'featured' => [
-                [
-                    'id' => 1,
-                    'title' => 'Sistema de Gestión Académica',
-                    'description' => 'Aplicación web completa para gestión de estudiantes, cursos y calificaciones. Implementada con Laravel en el backend y React en el frontend.',
-                    'image' => 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=600&fit=crop',
-                    'technologies' => ['Laravel', 'React', 'MySQL', 'Tailwind CSS'],
-                    'githubUrl' => 'https://github.com/detossj',
-                    'liveUrl' => null,
-                    'featured' => true,
-                    'category' => 'Web'
-                ],
-                [
-                    'id' => 2,
-                    'title' => 'App Móvil de Tareas',
-                    'description' => 'Aplicación nativa Android desarrollada en Kotlin para gestión de tareas con recordatorios, categorías y sincronización local.',
-                    'image' => 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop',
-                    'technologies' => ['Kotlin', 'Android Studio', 'Room Database', 'Material Design'],
-                    'githubUrl' => 'https://github.com/detossj',
-                    'liveUrl' => null,
-                    'featured' => true,
-                    'category' => 'Mobile'
-                ],
-                [
-                    'id' => 3,
-                    'title' => 'API RESTful con Laravel',
-                    'description' => 'Backend robusto con autenticación JWT, manejo de relaciones complejas y documentación con Swagger.',
-                    'image' => 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=600&fit=crop',
-                    'technologies' => ['Laravel', 'PostgreSQL', 'JWT', 'Swagger'],
-                    'githubUrl' => 'https://github.com/detossj',
-                    'liveUrl' => null,
-                    'featured' => true,
-                    'category' => 'Backend'
-                ],
-                [
-                    'id' => 4,
-                    'title' => 'Portfolio Interactivo',
-                    'description' => 'Sitio web personal desarrollado con React, diseño responsive y animaciones modernas.',
-                    'image' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
-                    'technologies' => ['React', 'Tailwind CSS', 'Framer Motion'],
-                    'githubUrl' => 'https://github.com/detossj',
-                    'liveUrl' => 'https://jorgerubilar.dev',
-                    'featured' => false,
-                    'category' => 'Web'
-                ]
-            ],
-            'github' => [
-                [
-                    'id' => 'gh1',
-                    'name' => 'portfolio-react',
-                    'description' => 'Portfolio personal desarrollado con React y Tailwind CSS',
-                    'stars' => 12,
-                    'language' => 'JavaScript',
-                    'url' => 'https://github.com/detossj'
-                ],
-                [
-                    'id' => 'gh2',
-                    'name' => 'laravel-api-boilerplate',
-                    'description' => 'Template para APIs REST con Laravel, JWT y mejores prácticas',
-                    'stars' => 8,
-                    'language' => 'PHP',
-                    'url' => 'https://github.com/detossj'
-                ],
-                [
-                    'id' => 'gh3',
-                    'name' => 'kotlin-todo-app',
-                    'description' => 'Aplicación de tareas nativa para Android con arquitectura MVVM',
-                    'stars' => 5,
-                    'language' => 'Kotlin',
-                    'url' => 'https://github.com/detossj'
-                ]
-            ]
+            'featured' => $projects->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'description' => $p->description,
+                    'image' => $p->image,
+                    'technologies' => $p->technologies, 
+                    'githubUrl' => $p->github_url,
+                    'liveUrl' => $p->liveUrl,
+                    'featured' => (bool) $p->featured,
+                    'category' => $p->category
+                ];
+            }),
+            'github' => $githubRepos->map(function ($g) {
+                return [
+                    'id' => 'gh' . $g->id, 
+                    'name' => $g->name,
+                    'description' => $g->description,
+                    'stars' => $g->stars,
+                    'language' => $g->language,
+                    'url' => $g->url
+                ];
+            })
         ]);
     }
 
