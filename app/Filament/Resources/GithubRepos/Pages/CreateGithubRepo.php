@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateGithubRepo extends CreateRecord
 {
     protected static string $resource = GithubRepoResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
