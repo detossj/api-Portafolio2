@@ -66,7 +66,7 @@ class PortfolioController extends Controller
     // Endpoint para la sección Experiencia
     public function getExperience()
     {
-        $experiences = Experience::orderBy('id', 'desc')->get();
+        $experiences = Experience::orderBy('id', 'asc')->get();
 
         return response()->json($experiences->map(function ($e) {
             return [
