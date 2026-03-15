@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\Profiles\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
 
 class ProfilesTable
 {
@@ -13,18 +12,12 @@ class ProfilesTable
     {
         return $table
             ->columns([
-                //
-            ])
-            ->filters([
-                //
+                TextColumn::make('name')->label('Nombre Configurado'),
+                TextColumn::make('contact_email')->label('Email Configurado'),
+                TextColumn::make('updated_at')->label('Última Actualización')->dateTime(),
             ])
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }
