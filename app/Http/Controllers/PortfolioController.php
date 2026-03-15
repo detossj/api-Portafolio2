@@ -1,65 +1,69 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\GithubRepo;
 use App\Models\Project;
 use App\Models\Experience;
 use App\Models\Education;
 use App\Models\Skill;
+use App\Models\Profile;
+use App\Models\NavItem;
+use App\Models\AboutCard;
 
 class PortfolioController extends Controller
 {
     // Endpoint para la Navegación (Header)
     public function getNav()
     {
-        return response()->json([
-            ['label' => 'Inicio', 'href' => '#hero'],
-            ['label' => 'Sobre mí', 'href' => '#about'],
-            ['label' => 'Habilidades', 'href' => '#skills'],
-            ['label' => 'Experiencia', 'href' => '#experience'],
-            ['label' => 'Proyectos', 'href' => '#projects'],
-            ['label' => 'Contacto', 'href' => '#contact']
-        ]);
+        $navs = NavItem::orderBy('order', 'asc')->get();
+        
+        return response()->json($navs->map(function ($n) {
+            return [
+                'label' => $n->label,
+                'href' => $n->href
+            ];
+        }));
     }
 
     // Endpoint para la sección Hero (Inicio)
     public function getHero()
     {
+        $p = Profile::first();
+        if (!$p) return response()->json(['error' => 'Perfil no configurado'], 404);
+
+        $nombres = explode(' ', $p->name);
+        
         return response()->json([
-            'greeting' => 'Hola, soy',
-            'name' => 'Jorge Rubilar',
-            'firstName' => 'Jorge',
-            'lastName' => 'Rubilar',
-            'title' => 'Estudiante de Ingeniería Civil Informática',
-            'bio' => 'Apasionado por el desarrollo de software y la resolución de problemas. Combino una gran capacidad de autoaprendizaje con la facilidad para dominar nuevas herramientas y frameworks, adaptándome rápidamente a los desafíos técnicos de cada proyecto.',
-            'githubUrl' => 'https://github.com/detossj'
+            'greeting' => $p->hero_greeting,
+            'name' => $p->name,
+            'firstName' => $nombres[0] ?? '',
+            'lastName' => isset($nombres[1]) ? implode(' ', array_slice($nombres, 1)) : '',
+            'title' => $p->hero_title,
+            'bio' => $p->hero_bio,
+            'githubUrl' => $p->contact_github
         ]);
     }
 
     // Endpoint para la sección Sobre Mí
     public function getAbout()
     {
+        $p = Profile::first();
+        $cards = AboutCard::orderBy('order', 'asc')->get();
+
+        if (!$p) return response()->json(['error' => 'Perfil no configurado'], 404);
+
         return response()->json([
-            'description' => 'Desarrollador de software y estudiante de Ingeniería Civil Informática con fuerte enfoque en ecosistemas web y móviles. Disfruto construyendo desde el backend e interfaces dinámicas, hasta aplicaciones nativas. Mi objetivo es integrarme a un equipo dinámico donde pueda aportar mi capacidad de autoaprendizaje y versatilidad para crear productos tecnológicos de alto impacto.',
-            'avatar' => 'https://avatars.githubusercontent.com/detossj',
-            'cards' => [
-                [
-                    'icon' => 'User', 
-                    'title' => 'Perfil',
-                    'text' => 'Desarrollador en formación'
-                ],
-                [
-                    'icon' => 'GraduationCap', 
-                    'title' => 'Formación',
-                    'text' => '9° Semestre Ing. Civil Informática (UCSC)'
-                ],
-                [
-                    'icon' => 'Code', 
-                    'title' => 'Tecnologías',
-                    'text' => 'Laravel, React y Kotlin (Android)'
-                ]
-            ]
+            'description' => $p->about_description,
+            'avatar' => $p->about_avatar,
+            'cards' => $cards->map(function ($c) {
+                return [
+                    'icon' => $c->icon,
+                    'title' => $c->title,
+                    'text' => $c->text
+                ];
+            })
         ]);
     }
 
@@ -161,41 +165,40 @@ class PortfolioController extends Controller
     // Endpoint para la sección Contacto
     public function getContact()
     {
+        $p = Profile::first();
+        if (!$p) return response()->json(['error' => 'Perfil no configurado'], 404);
+
         return response()->json([
-            'email' => 'jrubilar@ing.ucsc.cl',
-            'phone' => '+56989088185',
-            'github' => 'https://github.com/detossj',
-            'linkedin' => null,
-            'location' => 'Concepción, Chile'
+            'email' => $p->contact_email,
+            'phone' => $p->contact_phone,
+            'github' => $p->contact_github,
+            'linkedin' => $p->contact_linkedin,
+            'location' => $p->contact_location
         ]);
     }
 
-    // Endpoint para la sección Footer
+    // Footer
     public function getFooter()
     {
+        $p = Profile::first();
+        if (!$p) return response()->json(['error' => 'Perfil no configurado'], 404);
+
         return response()->json([
-            'name' => 'Jorge Rubilar',
-            'email' => 'jrubilar@ing.ucsc.cl',
-            'githubUrl' => 'https://github.com/detossj',
-            'shortBio' => 'Desarrollador Full Stack construyendo experiencias web y móviles.'
+            'name' => $p->name,
+            'email' => $p->contact_email,
+            'githubUrl' => $p->contact_github,
+            'shortBio' => $p->footer_short_bio
         ]);
     }
 
     // Endpoint para el Tema y Paleta de Colores
     public function getTheme()
     {
+        $p = Profile::first();
+        if (!$p) return response()->json(['error' => 'Perfil no configurado'], 404);
+
         return response()->json([
-            'colors' => [
-                'primary' => '#00ff88',       // Verde neón (Acentos principales)
-                'secondary' => '#00d4ff',     // Azul (Gradientes y acentos secundarios)
-                'background' => '#0a0a0b',    // Fondo principal de la app
-                'surface' => '#1a1a1b',       // Fondo de tarjetas (Cards) y elementos
-                'surfaceAlt' => '#0f0f10',    // Fondo alternativo (usado en About, Skills)
-                'border' => '#27272a',        // Bordes
-                'textPrimary' => '#e4e4e7',   // Texto principal (Blanco/Gris claro)
-                'textSecondary' => '#a1a1aa', // Texto secundario (Gris medio)
-                'textMuted' => '#71717a'      // Texto atenuado (Gris oscuro)
-            ]
+            'colors' => $p->theme_colors
         ]);
     }
 }
