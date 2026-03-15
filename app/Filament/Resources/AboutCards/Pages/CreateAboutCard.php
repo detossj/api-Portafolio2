@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAboutCard extends CreateRecord
 {
     protected static string $resource = AboutCardResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
