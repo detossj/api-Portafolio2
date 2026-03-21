@@ -201,4 +201,95 @@ class PortfolioController extends Controller
             'colors' => $p->theme_colors
         ]);
     }
+
+    public function getAllData()
+    {
+
+        $profile = Profile::first();
+        $navs = NavItem::orderBy('order', 'asc')->get();
+        $cards = AboutCard::orderBy('order', 'asc')->get();
+        $experiences = Experience::orderBy('id', 'asc')->get();
+        $educations = Education::orderBy('id', 'desc')->get();
+        $allSkills = Skill::all();
+        $projects = Project::all();
+        $githubRepos = GithubRepo::all();
+
+        $nombres = $profile ? explode(' ', $profile->name) : [];
+
+        $categories = [];
+        $softSkills = [];
+        foreach ($allSkills as $skill) {
+            if ($skill->category === 'Soft Skills') {
+                $softSkills[] = $skill->name;
+            } else {
+                $categories[$skill->category][] = [
+                    'name' => $skill->name,
+                    'icon' => $skill->icon
+                ];
+            }
+        }
+
+        return response()->json([
+            'nav' => $navs->map(fn($n) => ['label' => $n->label, 'href' => $n->href]),
+            
+            'hero' => $profile ? [
+                'greeting' => $profile->hero_greeting,
+                'name' => $profile->name,
+                'firstName' => $nombres[0] ?? '',
+                'lastName' => isset($nombres[1]) ? implode(' ', array_slice($nombres, 1)) : '',
+                'title' => $profile->hero_title,
+                'bio' => $profile->hero_bio,
+                'githubUrl' => $profile->contact_github
+            ] : null,
+
+            'about' => $profile ? [
+                'description' => $profile->about_description,
+                'avatar' => $profile->about_avatar,
+                'cards' => $cards->map(fn($c) => ['icon' => $c->icon, 'title' => $c->title, 'text' => $c->text])
+            ] : null,
+
+            'experience' => $experiences->map(fn($e) => [
+                'id' => $e->id, 'title' => $e->title, 'company' => $e->company,
+                'startDate' => $e->start_date, 'endDate' => $e->end_date,
+                'description' => $e->description, 'technologies' => $e->technologies
+            ]),
+
+            'education' => $educations->map(fn($ed) => [
+                'id' => $ed->id, 'degree' => $ed->degree, 'institution' => $ed->institution,
+                'status' => $ed->status, 'startDate' => $ed->start_date,
+                'endDate' => $ed->end_date, 'description' => $ed->description
+            ]),
+
+            'skills' => [
+                'categories' => $categories,
+                'soft_skills' => $softSkills
+            ],
+
+            'projects' => [
+                'featured' => $projects->map(fn($p) => [
+                    'id' => $p->id, 'title' => $p->title, 'description' => $p->description,
+                    'image' => $p->image, 'technologies' => $p->technologies, 
+                    'githubUrl' => $p->github_url, 'liveUrl' => $p->liveUrl,
+                    'featured' => (bool) $p->featured, 'category' => $p->category
+                ]),
+                'github' => $githubRepos->map(fn($g) => [
+                    'id' => 'gh' . $g->id, 'name' => $g->name, 'description' => $g->description,
+                    'stars' => $g->stars, 'language' => $g->language, 'url' => $g->url
+                ])
+            ],
+
+            'contact' => $profile ? [
+                'email' => $profile->contact_email, 'phone' => $profile->contact_phone,
+                'github' => $profile->contact_github, 'linkedin' => $profile->contact_linkedin,
+                'location' => $profile->contact_location
+            ] : null,
+
+            'footer' => $profile ? [
+                'name' => $profile->name, 'email' => $profile->contact_email,
+                'githubUrl' => $profile->contact_github, 'shortBio' => $profile->footer_short_bio
+            ] : null,
+
+            'theme' => $profile ? ['colors' => $profile->theme_colors] : null
+        ]);
+    }
 }
