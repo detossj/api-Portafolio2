@@ -292,4 +292,19 @@ class PortfolioController extends Controller
             'theme' => $profile ? ['colors' => $profile->theme_colors] : null
         ]);
     }
+
+    public function downloadCv()
+    {
+        $filePath = public_path('mi_cv.pdf');
+
+        // Verificar si el archivo existe
+        if (!file_exists($filePath)) {
+            return response()->json(['message' => 'Archivo no encontrado'], 404);
+        }
+
+        // Retornar el archivo como descarga
+        return response()->download($filePath, 'JorgeRubilar_CV.pdf', [
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
 }
