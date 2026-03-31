@@ -15,4 +15,5 @@ Route::prefix('portfolio')->group(function () {
     Route::get('/footer', [PortfolioController::class, 'getFooter']);
     Route::get('/theme', [PortfolioController::class, 'getTheme']);
     Route::get('/all', [PortfolioController::class, 'getAllData']);
+    Route::get('/download-cv', [PortfolioController::class, 'downloadCv']);
 });
